@@ -56,7 +56,7 @@ describe('Funcionalidade: APi de Cupons', () => {
         })
     })
 
-    it('Listas cupom de 10%', () => {
+    it.only('Listar cupom de 10%', () => {
         cy.request({
             url: 'http://lojaebac.ebaconline.art.br/wp-json/wc/v3/coupons',
             method: 'GET',
@@ -65,12 +65,18 @@ describe('Funcionalidade: APi de Cupons', () => {
                 Authorization: 'Basic YWRtaW5fZWJhYzpAYWRtaW4hJmJAYyEyMDIy'
             }
         }).should(response => { // resposta do serviço
-            cy.log(response)
             const {
-                status, body, code, id
+                status, body
             } = response
             expect(status).to.be.equal(200)
-            expect(body)
+            expect(body).to.be.not.empty // garante que não ta vazio
+            for(const cupom of body) { // percorreu todo conteudo da variavel body, pq o body é um array
+                cy.log(JSON.stringify(cupom))
+                expect(cupom).to.be.haveOwnProperty('code')
+                expect(cupom).to.be.haveOwnProperty('amount')
+            }
+            const hascupom = body.find(item => item.code==='gracupom15')
+            expect(hascupom).to.be.not.undefined
         })
     })
 });
